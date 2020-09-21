@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use index;
 
 class TasksController extends Controller
 {
@@ -15,7 +16,10 @@ class TasksController extends Controller
      */
     public function index()
     {
-        return "This is an index page";
+
+        $tasks = Task::paginate(3);
+
+        return view('tasks.index', ['tasks' => $tasks]);
     }
 
     /**
