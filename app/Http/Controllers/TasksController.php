@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use index;
 
+use function GuzzleHttp\Promise\all;
+
 class TasksController extends Controller
 {
     /**
@@ -17,7 +19,7 @@ class TasksController extends Controller
     public function index()
     {
 
-        $tasks = Task::paginate(3);
+        $tasks = Task::orderBy('due_date', 'asc')->paginate();
 
         return view('tasks.index', ['tasks' => $tasks]);
     }
@@ -43,7 +45,7 @@ class TasksController extends Controller
         //Validate the data
         $this->validate($request, [
             'name'=> 'required|string|max:255|min:3',
-            'description'=> 'required|string|max:10000|min:10',
+            'description'=> 'required|string|max:10000|min:5',
             'due_date'=> 'required|date',
         ]);
         //Create a new task
@@ -61,7 +63,7 @@ class TasksController extends Controller
         Session::flash('success', 'Created Task Successfully');
 
         //Return a redirect
-        return redirect()->route('task.create');
+        return redirect()->route('task.index');
     }
 
     /**
@@ -83,7 +85,10 @@ class TasksController extends Controller
      */
     public function edit($id)
     {
-        //
+        $task = Task::find($id);
+        $task->dueDateFormatting = false;
+
+        return view('tasks.edit')->withTask($task);
     }
 
     /**
@@ -95,7 +100,29 @@ class TasksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+         //Validate the data
+         $this->validate($request, [
+            'name'=> 'required|string|max:255|min:3',
+            'description'=> 'required|string|max:10000|min:5',
+            'due_date'=> 'required|date',
+        ]);
+
+        //Find the related task
+        $task = Task::find($id);
+
+        //Assigne the task data from our request
+        $task->name = $request->name;
+        $task->description = $request->description;
+        $task->due_date = $request->due_date;
+
+        //Save the task
+        $task->save();
+
+        //Flash ssesion message with success
+        Session::flash('success', 'Saved The Task Successfully');
+
+        //Return a redirect
+        return redirect()->route('task.index'); 
     }
 
     /**
@@ -106,6 +133,16 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //Finding the specific task by id
+        $task = Task::find($id);
+        
+        //Deleting the task
+        $task->delete();
+
+        // Flashing a session message
+        Session::flash('success', 'Deleted The Task Successfully');
+
+        // Returning a redirect back to the index
+        return redirect()->route('task.index');
     }
 }
