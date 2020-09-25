@@ -21,7 +21,7 @@
         <div class="col-sm-12" style="margin-top: 20px">
             <h3>
                 {{ $task->name }}
-                <small>{{ $task->created_at }}</small>
+                <small>{{ $task->created_at }}</small>                
             </h3>
             <hr>
             <p>{{ $task->description }}</p>
@@ -37,8 +37,5 @@
 
     @endforeach
     @endif
-
 </div>
-
-
 @endsection
